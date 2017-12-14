@@ -1,0 +1,225 @@
+<html>
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div class="top-div">
+            <div align="right">
+                <button id="makeItemBtn">[ 행추가 ]</button>
+                <button id="RowRemoveBtn">[ 행삭제 ]</button>
+                <button id="editColumnItemBtn">[ 반영 ]</button>    
+            </div>
+            <table id="example" class="example">
+                    <tr class="item0">
+                        <th>이름</th>
+                        <th>사용여부</th>
+                        <th>설명</th>
+                    </tr>
+                    <tr class="item1-1">
+                        <td>번호</td>
+                        <td>
+                            <select id="doc_selected">
+                                <option value="1" selected="">Y</option>
+                                <option value="2">N</option>
+                            </select>
+                        </td>
+                        <td><input type="text" placeholder="문서번호" id="doc_value" /></td>
+                    </tr>
+                     <tr class="item1-2">
+                        <td>제목</td>
+                        <td>
+                            <select id="title_selected">
+                                <option value="1" selected="">Y</option>
+                                <option value="2">N</option>
+                            </select>
+                        </td>
+                        <td><input type="text" placeholder="제목" id="title_value"/></td>
+                    </tr>
+                     <tr class="item1-1">
+                        <td>등록일</td>
+                        <td>
+                            <select id="date_selected">
+                                <option value="1" selected="">Y</option>
+                                <option value="2">N</option>
+                            </select>
+                        </td>
+                        <td><input type="text"/ placeholder="문서 등록일" id="date_value"></td>
+                    </tr>
+                     <tr class="item1-2">
+                        <td>등록자</td>
+                        <td>
+                            <select id="man_selected">
+                                <option value="1" selected="">Y</option>
+                                <option value="2">N</option>
+                            </select>
+                        </td>
+                        <td><input type="text"/ placeholder="문서 등록자" id="man_value"></td>
+                    </tr>
+            </table>
+        </div>
+        <div class="top-div">
+            <div class="top-text">[ 목록 ]</div>
+            <table id="example_result" class="example">
+                    <tr class="item0">
+                        <th id="doc_selected_visible">번호</th>
+                        <th id="title_selected_visible">제목</th>
+                        <th id="date_selected_visible">등록일</th>
+                        <th id="man_selected_visible">등록자</th>
+                    </tr>
+                    <tr class="item1">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </table>  
+        </div>
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            // 행추가 버튼 클릭 시 
+            $("#makeItemBtn").click(function(){
+                var sum_column = makeAllYes();
+                if(sum_column != 4) {
+                    alert("데이터 생성을 위해 사용여부를 모두 Y로 만들고 행을 추가하세요.");
+                }
+
+                var docValue = $("#doc_value").val();
+                var titleValue = $("#title_value").val();
+                var dateValue = $("#date_value").val();
+                var manValue = $("#man_value").val();
+
+                
+                var lastItemNo = $("#example_result tr:last").attr("class").replace("item", "");
+
+                var newitem = $("#example_result tr:eq(1)").clone();
+
+                newitem.removeClass();
+                newitem.find("td:eq(2)").attr("rowspan","1");
+                
+                if(lastItemNo%2){
+                    newitem.addClass("item1-1 item"+(parseInt(lastItemNo)+1));
+                } else {
+                    newitem.addClass("item1-2 item"+(parseInt(lastItemNo)+1));
+                }
+
+                $("#example_result").append(newitem);
+                
+                $("#example_result tr td:eq(0)").html(docValue);
+                $("#example_result tr td:eq(1)").html(titleValue);
+                $("#example_result tr td:eq(2)").html(dateValue);
+                $("#example_result tr td:eq(3)").html(manValue);
+
+                clearFields();
+            });
+
+            // 삭제버튼 클릭시
+            $("#RowRemoveBtn").click(function(){
+                // 가장 최신에 만들어진 행을 지운다.
+                var sum_column = makeAllYes();
+                if(sum_column != 4) {
+                    alert("안전한 데이터 삭제를 위해 사용여부를 모두 Y로 만들고 행을 삭제하세요.");
+                } else {
+                   $("#example_result").parent().find("td:first").remove();
+                   $("#example_result").parent().find("td:first").remove();
+                   $("#example_result").parent().find("td:first").remove();
+                   $("#example_result").parent().find("td:first").remove();
+                }
+            });
+
+            // 반영 버튼 클릭시
+            $("#editColumnItemBtn").click(function(){
+                // item 의 최대번호 구하기
+                 checkYesNo();
+            });
+ 
+            // cls : rowspan 을 조정할 class ex) item1, item2, ...
+            function resizeRowspan(cls){
+                var rowspan = $("."+cls).length;
+                $("."+cls+":first td:eq(0)").attr("rowspan", rowspan);
+            }
+
+            function checkYesNo(){
+                // 사용여부 Y인지 확인하고 tr을 지운다.
+                // 반영버튼 눌렀을때 컬럼이 display none 되는
+
+                var doc_selected = $("#doc_selected").val();
+                var title_selected = $("#title_selected").val();
+                var date_selected = $("#date_selected").val();
+                var man_selected = $("#man_selected").val();
+                
+                if(doc_selected>1) {
+                    $("#doc_selected_visible").hide(); 
+                    $("#example_result td:nth-child(1)").hide();
+                } else {
+                    $("#doc_selected_visible").show();
+                    $("#example_result td:nth-child(1)").show();
+                }
+                if(title_selected>1) {
+                    $("#title_selected_visible").hide(); 
+                    $("#example_result td:nth-child(2)").hide();
+
+                } else {
+                    $("#title_selected_visible").show();
+                    $("#example_result td:nth-child(2)").show();
+
+                }
+                if(date_selected>1) {
+                    $("#date_selected_visible").hide(); 
+                    $("#example_result td:nth-child(3)").hide();
+
+                } else {
+                    $("#date_selected_visible").show();
+                    $("#example_result td:nth-child(3)").show();
+
+                }
+                if(man_selected>1) {
+                    $("#man_selected_visible").hide(); 
+                    $("#example_result td:nth-child(4)").hide();
+
+                } else {
+                    $("#man_selected_visible").show();
+                    $("#example_result td:nth-child(4)").show();
+
+                }
+            }
+
+            /* 데이터를 저장할 때 모든 컬럼을 다 저장하게 합니다. 사용여부에 따라 보이지 않을 수 있지만 데이터가 존재는 하기 때문입니다. */
+            function makeAllYes(){
+                var sum_column = 0;
+                var doc_selected = parseInt($("#doc_selected").val());
+                var title_selected = parseInt($("#title_selected").val());
+                var date_selected = parseInt($("#date_selected").val());
+                var man_selected = parseInt($("#man_selected").val());
+                sum_column = doc_selected + title_selected + date_selected + man_selected;
+                return sum_column;
+            }
+
+            //필드 리셋
+            function clearFields(){
+                document.getElementById("doc_value").value = "";
+                document.getElementById("title_value").value = "";
+                document.getElementById("date_value").value = "";
+                document.getElementById("man_value").value = "";
+            }
+        });
+    </script>
+    <style>
+        body {margin-top: 10%;}
+        .top-div {width: 50%; margin-left: 25%; margin-bottom: 50px;}
+        .example {width: 100%; border:1px; text-align: center;}
+        .item0 {background-color: #5B9BD5; color: white;}
+        .item1-1 {background-color: #D0DEEF;}
+        .item1-2 {background-color: #E9EFF7;}
+        .top-text {color: blue;}
+        input {width: 100%;}
+        button { /* Remove all decorations to look like normal text */
+                background: none; border: none; display: inline; font: inherit;
+                margin: 0; padding: 0; outline: none; outline-offset: 0;
+                /* Additional styles to look like a link */
+                color: blue; cursor: pointer; text-decoration: none;}
+    </style>  
+</html>  
+
+
